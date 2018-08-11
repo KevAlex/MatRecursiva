@@ -1,0 +1,47 @@
+public static void main(String[] args) {
+        // TODO code application logic here
+        int mat[][] = new int[3][3];
+        
+        int a ;
+        
+        for(int i=0; i<3 ;i++){
+            for(int j=0; j<3; j++){
+            a  =(int) (Math.random()*50)+1;    
+            mat[i][j]=a;    
+            
+            }
+        }
+        recorreMat(mat, 0, 0);
+        System.out.println("");
+        
+//        for(int i=0; i< mat.length;i++){
+//           for(int j=0;j<mat[i].length;j++){
+//               System.out.print(mat[i][j]);
+//               System.out.print(" ");
+//           }
+//            System.out.println("");
+//        }
+        
+        
+    }
+        public static void recorreMat(int mat[][], int fil, int col){
+
+        System.out.print(" " +mat[fil][col]);
+        
+        if(fil != mat.length-1 || col != mat[fil].length-1){
+            
+            if(col==mat[fil].length-1){
+                fil++;
+                col=0;
+                System.out.println("");
+            }else{
+                col++;
+            }
+            recorreMat(mat, fil, col);
+        }
+            
+        
+            
+        
+    
+    }
