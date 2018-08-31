@@ -1,0 +1,245 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package dieog;
+
+import java.util.ArrayList;
+
+/**
+ *
+ * @author kevin
+ */
+public class Graph {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        // TODO code application logic here
+        Edge[] edges = {
+            new Edge(0, 2, 1), new Edge(0, 3, 4), new Edge(0, 4, 2),
+            new Edge(0, 1, 3), new Edge(1, 3, 2), new Edge(1, 4, 3),
+            new Edge(1, 5, 1), new Edge(2, 4, 1), new Edge(3, 5, 4),
+            new Edge(4, 5, 2), new Edge(4, 6, 7), new Edge(4, 7, 2),
+            new Edge(5, 6, 4), new Edge(6, 7, 5)
+        };
+        Graph g = new Graph(edges);
+//        System.out.println("valor nodo " + g.edges[5].getFromNodeIndex());       // aca obtengo la informacion del nodo
+//        System.out.println(" //" + g.edges[0].getNeighbourIndex(0));                // OBTENGO el vecino del nodo
+        g.calculateShortestDistances();
+        g.printResult(); // let's try it !
+
+    }
+
+    public static class Edge {
+
+        public int fromNodeIndex;
+        private int toNodeIndex;
+        private int length;
+
+        public Edge(int fromNodeIndex, int toNodeIndex, int length) {
+            this.fromNodeIndex = fromNodeIndex;
+            this.toNodeIndex = toNodeIndex;
+            this.length = length;
+        }
+
+        public int getFromNodeIndex() {
+            return fromNodeIndex;
+        }
+
+        public int getToNodeIndex() {
+            return toNodeIndex;
+        }
+
+        public int getLength() {
+            return length;
+        }
+        // determines the neighbouring node of a supplied node, based on the two nodes connected by this edge
+
+        public int getNeighbourIndex(int nodeIndex) {
+            if (this.fromNodeIndex == nodeIndex) {
+                return this.toNodeIndex;
+            } else {
+                return this.fromNodeIndex;
+            }
+        }
+    }
+
+    public class Node {
+
+        private int distanceFromSource = Integer.MAX_VALUE;
+        private boolean visited;
+        private ArrayList<Edge> edges = new ArrayList<Edge>(); // now we must create edges
+
+        public int getDistanceFromSource() {
+            return distanceFromSource;
+        }
+
+        public void setDistanceFromSource(int distanceFromSource) {
+            this.distanceFromSource = distanceFromSource;
+        }
+
+        public boolean isVisited() {
+            return visited;
+        }
+
+        public void setVisited(boolean visited) {
+            this.visited = visited;
+        }
+
+        public ArrayList<Edge> getEdges() {
+            return edges;
+        }
+
+        public void setEdges(ArrayList<Edge> edges) {
+            this.edges = edges;
+        }
+    }
+    private Node[] nodes;
+    private int noOfNodes;
+    private Edge[] edges;
+    private int noOfEdges;
+
+    public Graph(Edge[] edges) {
+        this.edges = edges;
+        // create all nodes ready to be updated with the edges
+        this.noOfNodes = calculateNoOfNodes(edges);
+        this.nodes = new Node[this.noOfNodes];
+        for (int n = 0; n < this.noOfNodes; n++) {
+            this.nodes[n] = new Node();
+        }
+        // add all the edges to the nodes, each edge added to two nodes (to and from)
+        this.noOfEdges = edges.length;
+        for (int edgeToAdd = 0; edgeToAdd < this.noOfEdges; edgeToAdd++) {
+            this.nodes[edges[edgeToAdd].getFromNodeIndex()].getEdges().add(edges[edgeToAdd]);
+            this.nodes[edges[edgeToAdd].getToNodeIndex()].getEdges().add(edges[edgeToAdd]);
+//            System.out.println("h0 "+ this.nodes[this.edges[5].getFromNodeIndex()]);
+
+//            System.out.println("ed "+this.edges[edgeToAdd].getLength());   // aca logro mostrar la info del nodo
+        }
+    }
+
+    private int calculateNoOfNodes(Edge[] edges) {
+        int noOfNodes = 0;
+        for (Edge e : edges) {
+            if (e.getToNodeIndex() > noOfNodes) {
+                noOfNodes = e.getToNodeIndex();
+            }
+            if (e.getFromNodeIndex() > noOfNodes) {
+                noOfNodes = e.getFromNodeIndex();
+            }
+        }
+        noOfNodes++;
+        return noOfNodes;
+    }
+
+    
+
+    public void calculateShortestDistances() {
+        // node 0 as source
+        this.nodes[0].setDistanceFromSource(0);     // aca llega el nodo a evaluar
+        int nextNode = 0;               //              cambiar aca tambien el nodo
+        int vec [] = new int[8];
+
+        // visit every node
+        for (int i = 0; i < this.nodes.length; i++) {
+            // loop around the edges of current node
+            ArrayList<Edge> currentNodeEdges = this.nodes[nextNode].getEdges();
+            for (int joinedEdge = 0; joinedEdge < currentNodeEdges.size(); joinedEdge++) {
+//                System.out.println("// " );
+                int neighbourIndex = currentNodeEdges.get(joinedEdge).getNeighbourIndex(nextNode);      // guarda el vecino inmediato del nodo joinedE..   // guarda el vecino inmediato del nodo joinedE..
+                System.out.println("--NodIni " + joinedEdge + " nodo en analisis " + nextNode + " vecino " + neighbourIndex);
+                // only if not visited
+                if (!this.nodes[neighbourIndex].isVisited()) {          // si ya visita el nodo a la proxima iteracion no entra 
+                    int tentative = this.nodes[nextNode].getDistanceFromSource() + currentNodeEdges.get(joinedEdge).getLength();
+                    System.out.println("/ From //to " + this.nodes[nextNode].getDistanceFromSource() + " dist " + currentNodeEdges.get(joinedEdge).getLength() + " / t " + tentative);
+//                     currentNodeEdges.get(joinedEdge).getLength() da el valor de distancia entre nodo analisis y su vecino en ese instante neighbourIndex
+////                    System.out.println("jol " + nodes[neighbourIndex].getDistanceFromSource());
+                    if (tentative < nodes[neighbourIndex].getDistanceFromSource()) {
+                        nodes[neighbourIndex].setDistanceFromSource(tentative); // aca se da el cambio de distancia, es decir antes puedo obtener
+                        System.out.println("hila " + nodes[neighbourIndex].getDistanceFromSource());
+//                     pasa por el nodo joined y se dirge a neighnouIdx                             // el valor del nodo de donde se hizo el cambio     
+                        // la entrada a aca me da la pauta con los valores nex y vecino para saber cual es el camino RESPUESTA FINAL ACA ESTÄ
+                        if (neighbourIndex == 7) {      // condicional para obtener solo los nodos recorrido del nodo inicial  al nodofinal
+                            // guardo el valor  nextNode y el de neighbourIndex     revisar condicion
+                            System.out.println("func "+i);          //Falta perfeccionar esa condicion 
+                            vec[i] = nextNode;
+                            vec[i+1] = neighbourIndex;
+                        }
+//                        aca debo guardar el camino de los nodos recorridos
+//                        System.out.println("val " + nodes[neighbourIndex].getDistanceFromSource() + " neigInx " + neighbourIndex);
+//                         System.out.println("No. vecinos "+ currentNodeEdges.size());
+                    }
+                }
+            }
+            System.out.println("Sali");
+            // all neighbours checked so node visited
+            nodes[nextNode].setVisited(true); // con esto puedo saber que nodo fue visitado¡¡¡¡¡¡¡¡¡¡¡¡¡    // me indica cuando un nodo fue analizado
+//            System.out.println("prueba "+ this.nodes[].getDistanceFromSource());
+            // next node must be with shortest distance
+            nextNode = getNodeShortestDistanced();
+//            System.out.println("pasa por el nodo "+  this.edges[nextNode].getFromNodeIndex() + " nexnode "+ nextNode);  
+//            System.out.println("valor de la distancia " + nodes[nextNode].distanceFromSource);
+//            System.out.println("NEXTNODE " + nextNode);           
+        }System.out.println("CAMINO RECORRIDO");
+        for (int o = 0; o < vec.length; o++) {
+//            System.out.println("welcome "+ o);
+            if(vec[o] !=0){
+            System.out.println(vec[o]);
+            }
+        }
+    }
+
+    private int getNodeShortestDistanced() {
+        int storedNodeIndex = 0;
+        int storedDist = Integer.MAX_VALUE;
+
+//        for (int i = 0; i < this.nodes.length; i++){
+//            
+//            System.out.println("v " + nodes[i].getDistanceFromSource() + "//i "+ i);      // aca ya llega con el valor final del camino recorrido
+//        }
+        for (int i = 0; i < this.nodes.length; i++) {
+            int currentDist = this.nodes[i].getDistanceFromSource();
+            if (!this.nodes[i].isVisited() && currentDist < storedDist) {
+                System.out.println("inte " + i + " CD " + currentDist);
+                storedDist = currentDist;               // 
+                storedNodeIndex = i;                    // indica el nodo siguiente a evaluar
+            }
+        }
+        System.out.println("str " + storedNodeIndex);
+//        for (int i = 0; i < this.nodes.length; i++){
+//            
+//            System.out.println("v " + nodes[i].getDistanceFromSource() + "//i "+ i);      // aca ya llega con el valor final del camino recorrido
+//        }
+        return storedNodeIndex;
+    }
+
+    // display result
+    public void printResult() {
+        String output = "Number of nodes = " + this.noOfNodes;
+//        output += "\nNumber of edges = " + this.noOfEdges;
+        for (int i = 0; i < this.nodes.length; i++) {
+            output += ("\nThe shortest distance from node 0 to node " + i + " is " + nodes[i].getDistanceFromSource());
+        }
+        System.out.println(output);
+
+    }
+
+    public Node[] getNodes() {
+        return nodes;
+    }
+
+    public int getNoOfNodes() {
+        return noOfNodes;
+    }
+
+    public Edge[] getEdges() {
+        return edges;
+    }
+
+    public int getNoOfEdges() {
+        return noOfEdges;
+    }
+}
